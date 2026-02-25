@@ -1,0 +1,11 @@
+# IDE / OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Local overrides
+config.local.*
+
+# Archives
+*.zip

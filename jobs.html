@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+      content="Browse part-time and flexible jobs across Hampshire. Novalent Staffing – retail, hospitality, healthcare, logistics positions.">
+    <title>Browse Jobs | Novalent Staffing</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/hirxpert.css">
+  </head>
+
+  <body>
+    <header class="header" id="header">
+      <div class="container">
+        <nav class="nav">
+          <a href="./" class="logo">Nova<span>lent</span> Staffing</a>
+          <ul class="nav-links" id="navLinks">
+            <li><a href="./">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="services">Services</a></li>
+            <li><a href="jobs">Jobs</a></li>
+            <li><a href="for-employers.html">For Employers</a></li>
+            <li><a href="for-jobseekers">For Job Seekers</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="request-staff" class="btn btn-primary">Request Staff</a></li>
+          </ul>
+          <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span><span></span><span></span></button>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="page-hero job-board-hero">
+        <div class="container">
+          <h1>Find Your Next Role</h1>
+          <p>Part-time and flexible jobs across Hampshire</p>
+          <div class="job-search-bar">
+            <div class="search-input-wrap">
+              <i class="fas fa-search"></i>
+              <input type="search" id="searchKeyword" placeholder="Job title or keywords"
+                aria-label="Search jobs by keyword">
+            </div>
+            <div class="search-input-wrap">
+              <i class="fas fa-map-marker-alt"></i>
+              <select id="searchLocation" aria-label="Location">
+                <option value="">All Hampshire</option>
+                <option value="Portsmouth">Portsmouth</option>
+                <option value="Southampton">Southampton</option>
+                <option value="Fareham">Fareham</option>
+                <option value="Chichester">Chichester</option>
+                <option value="Winchester">Winchester</option>
+              </select>
+            </div>
+            <button type="button" class="btn btn-primary btn-search" id="btnSearch"><i
+                class="fas fa-search me-2"></i>Search</button>
+          </div>
+          <div class="filter-chips" id="filterChips">
+            <button type="button" class="chip active" data-type="">All types</button>
+            <button type="button" class="chip" data-type="Part-time">Part-time</button>
+            <button type="button" class="chip" data-type="Temporary">Temporary</button>
+            <button type="button" class="chip" data-type="Flexible">Flexible</button>
+          </div>
+          <a href="#" class="saved-jobs-link" id="savedJobsLink" style="display:none">
+            <i class="fas fa-bookmark"></i> <span id="savedJobsCount">0</span> saved
+          </a>
+        </div>
+      </section>
+
+      <section class="section section-alt">
+        <div class="container">
+          <div class="job-board-toolbar">
+            <div class="toolbar-left">
+              <p class="job-results-count" id="resultsCount">0 jobs found</p>
+              <div class="active-filters" id="activeFilters"></div>
+            </div>
+            <div class="toolbar-right">
+              <div class="view-toggle" role="group" aria-label="View mode">
+                <button type="button" class="view-btn active" data-view="list" aria-pressed="true" title="List view"><i
+                    class="fas fa-list"></i></button>
+                <button type="button" class="view-btn" data-view="grid" aria-pressed="false" title="Grid view"><i
+                    class="fas fa-th-large"></i></button>
+              </div>
+              <div class="job-sort">
+                <label for="sortJobs">Sort by</label>
+                <select id="sortJobs">
+                  <option value="date">Date posted</option>
+                  <option value="salary">Salary (high to low)</option>
+                  <option value="salary-asc">Salary (low to high)</option>
+                  <option value="title">Job title</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="filters-row">
+            <div class="form-group">
+              <label for="filterIndustry">Industry</label>
+              <select id="filterIndustry">
+                <option value="">All industries</option>
+                <option value="cleaning">Cleaning</option>
+                <option value="security">Security</option>
+                <option value="manufacturing">Manufacturing</option>
+                <option value="retail">Retail</option>
+                <option value="hospitality">Hospitality</option>
+                <option value="healthcare">Healthcare</option>
+                <option value="logistics">Logistics</option>
+                <option value="events">Events</option>
+              </select>
+            </div>
+          </div>
+          <div class="jobs-container">
+            <div class="jobs-list jobs-view-list" id="jobsList">
+              <!-- Populated by jobs.js -->
+            </div>
+            <div class="jobs-load-more" id="loadMoreWrap" style="display:none">
+              <button type="button" class="btn btn-outline-teal" id="loadMoreBtn">Load more jobs</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-grid">
+          <div class="footer-brand">
+            <div class="logo">Nova<span>lent</span> Staffing</div>
+            <p>Hampshire's trusted recruitment agency for flexible staffing solutions.</p>
+          </div>
+          <div>
+            <h4>Quick Links</h4>
+            <ul>
+              <li><a href="about.html">About</a></li>
+              <li><a href="services">Services</a></li>
+              <li><a href="jobs">Jobs</a></li>
+              <li><a href="for-employers.html">For Employers</a></li>
+              <li><a href="for-jobseekers">For Job Seekers</a></li>
+              <li><a href="request-staff">Request Staff</a></li>
+              <li><a href="contact.html">Contact</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Services</h4>
+            <ul>
+              <li><a href="services.html#part-time">Part-Time Staffing</a></li>
+              <li><a href="services.html#temporary">Temporary Staffing</a></li>
+              <li><a href="services.html#full-time">Full-Time Placements</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Contact</h4>
+            <ul>
+              <li><a href="mailto:info@novalentstaffing.com">info@novalentstaffing.com</a></li>
+              <li>Portsmouth & Hampshire, UK</li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2026 Novalent Staffing Ltd. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/jobs.js"></script>
+  </body>
+
+</html>
