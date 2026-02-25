@@ -1,19 +1,20 @@
 /**
  * Novalent Staffing – single source of truth for all URLs
  * Update links here; nav and footer are built from this config.
+ * Extensionless URLs; .htaccess rewrites /about -> about.html.
  */
 window.NOVALENT_LINKS = {
-  home: 'index.html',
-  about: 'about.html',
-  services: 'services.html',
-  jobs: 'jobs.html',
-  forEmployers: 'for-employers.html',
-  forJobseekers: 'for-jobseekers.html',
-  contact: 'contact.html',
-  requestStaff: 'request-staff.html',
-  apply: 'apply.html',
+  home: '.',
+  about: 'about',
+  services: 'services',
+  jobs: 'jobs',
+  forEmployers: 'for-employers',
+  forJobseekers: 'for-jobseekers',
+  contact: 'contact',
+  requestStaff: 'request-staff',
+  apply: 'apply',
   email: 'mailto:info@novalentstaffing.com',
-  servicesPartTime: 'services.html#part-time',
-  servicesTemporary: 'services.html#temporary',
-  servicesFullTime: 'services.html#full-time',
+  servicesPartTime: 'services#part-time',
+  servicesTemporary: 'services#temporary',
+  servicesFullTime: 'services#full-time',
 };

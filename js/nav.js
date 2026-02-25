@@ -9,7 +9,7 @@
   if (!L) return;
 
   const path = (window.location.pathname || '').replace(/\/$/, '');
-  const isForJobseekers = /for-jobseekers\.html?$/.test(path);
+  const isForJobseekers = /for-jobseekers(\.html?)?$/.test(path);
   const primaryCtaHref = isForJobseekers ? L.jobs : L.requestStaff;
   const primaryCtaText = isForJobseekers ? 'Browse Jobs' : 'Request Staff';
 
