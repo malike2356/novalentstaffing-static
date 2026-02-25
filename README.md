@@ -57,6 +57,22 @@ Then open `http://localhost:8000`.
 - **Fonts:** Plus Jakarta Sans, DM Sans (Google Fonts)
 - **Images:** Unsplash (stock imagery, free to use)
 
+## Deploy (pull from GitHub)
+
+Use GitHub as staging. On the server:
+
+```bash
+cd /home1/n15dzk3l/novalentstaffing.com
+git pull origin main
+```
+
+First-time setup on server: clone into the document root:
+
+```bash
+cd /home1/n15dzk3l
+git clone https://github.com/malike2356/novalentstaffing-static.git novalentstaffing.com
+```
+
 ## Contact Form
 
 The contact form currently shows an alert on submit. For production, wire it to:
