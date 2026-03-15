@@ -58,4 +58,19 @@
 
   // Initial scroll state
   onScroll();
+
+  // "Edit content" floating pill when ?edit=1 (CMS baked into site)
+  (function() {
+    var params = new URLSearchParams(window.location.search);
+    var L = window.NOVALENT_LINKS;
+    if (!params.get('edit') || !L || !L.cmsUrl) return;
+    var pill = document.createElement('a');
+    pill.href = L.cmsUrl;
+    pill.target = '_blank';
+    pill.rel = 'noopener';
+    pill.className = 'cms-edit-pill';
+    pill.innerHTML = '<i class="fas fa-edit"></i> Edit content';
+    pill.setAttribute('aria-label', 'Edit site content in CMS');
+    document.body.appendChild(pill);
+  })();
 })();

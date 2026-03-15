@@ -2,9 +2,13 @@
 DirectoryIndex index.html
 Options -Indexes
 
-# Extensionless URLs (no RewriteBase = use directory path, works for /novalent/novalentstaffing.com/)
+# Extensionless URLs (no RewriteBase = use directory path)
 <IfModule mod_rewrite.c>
   RewriteEngine On
+
+  # Redirect .com to .co.uk (canonical domain)
+  RewriteCond %{HTTP_HOST} ^(www\.)?novalentstaffing\.com$ [NC]
+  RewriteRule ^ https://novalentstaffing.co.uk%{REQUEST_URI} [R=301,L]
 
   # 301 redirect .html requests to clean URLs
   RewriteCond %{THE_REQUEST} \s/+index\.html[\s?] [NC]

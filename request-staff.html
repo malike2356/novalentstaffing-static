@@ -22,8 +22,8 @@
     <main>
       <section class="page-hero">
         <div class="container">
-          <h1>Request Staff</h1>
-          <p>Book part-time, temporary or flexible workers</p>
+          <h1 data-content="request_hero_title">Request Staff</h1>
+          <p data-content="request_hero_subtitle">Book part-time, temporary or flexible workers</p>
         </div>
       </section>
 
@@ -31,26 +31,28 @@
         <div class="container">
           <div class="section-header">
             <p class="section-label">Staffing Request</p>
-            <h2>Request Staff</h2>
-            <p>Tell us your staffing needs and we'll match you with quality candidates across Hampshire.</p>
+            <h2 data-content="request_section_heading">Request Staff</h2>
+            <p data-content="request_section_intro">Tell us your staffing needs and we'll match you with quality
+              candidates across Hampshire.</p>
           </div>
           <div class="carousel" data-carousel style="max-width: 900px;">
             <div class="carousel-inner">
               <div class="carousel-slide active">
                 <img src="assets/images/employers-meeting.jpg" alt="Staffing request and booking">
-                <p class="img-caption">Tell us your staffing needs and we'll match you with quality candidates</p>
+                <p class="img-caption" data-content="request_carousel_cap_1">Tell us your staffing needs and we'll match
+                  you with quality candidates</p>
               </div>
               <div class="carousel-slide">
                 <img src="assets/images/office-modern.jpg" alt="Business staffing">
-                <p class="img-caption">Fast response across Hampshire</p>
+                <p class="img-caption" data-content="request_carousel_cap_2">Fast response across Hampshire</p>
               </div>
               <div class="carousel-slide">
                 <img src="assets/images/team-meeting.jpg" alt="Partnership">
-                <p class="img-caption">Personalised staffing solutions</p>
+                <p class="img-caption" data-content="request_carousel_cap_3">Personalised staffing solutions</p>
               </div>
               <div class="carousel-slide">
                 <img src="assets/images/interview.jpg" alt="Quality candidates">
-                <p class="img-caption">Quality candidates, quality service</p>
+                <p class="img-caption" data-content="request_carousel_cap_4">Quality candidates, quality service</p>
               </div>
             </div>
             <button class="carousel-prev" type="button" aria-label="Previous"><i
@@ -71,6 +73,12 @@
             <div class="booking-section">
               <h3><i class="fas fa-building me-2" style="color:var(--accent)"></i>Your Business</h3>
               <div class="form-grid">
+                <div class="form-group col-2" id="serviceIdWrap" style="display:none;">
+                  <label for="serviceId">Service type *</label>
+                  <select id="serviceId" name="serviceId">
+                    <option value="">Loading…</option>
+                  </select>
+                </div>
                 <div class="form-group col-2">
                   <label for="companyName">Company Name *</label>
                   <input type="text" id="companyName" name="companyName" required maxlength="150"
@@ -192,39 +200,107 @@
     <script src="js/carousel.js"></script>
     <script src="js/jobs.js"></script>
     <script src="js/form-security.js"></script>
+    <script src="js/mis-api.js"></script>
+    <script src="js/branding.js"></script>
     <script>
-      document.getElementById('requestForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-        var form = e.target;
-        if (window.NovalentFormSecurity && !window.NovalentFormSecurity.check(form)) {
-          window.NovalentFormSecurity.showError();
-          return;
+      (function () {
+        var serviceWrap = document.getElementById('serviceIdWrap');
+        var serviceSelect = document.getElementById('serviceId');
+        if (window.NovalentMisApi && window.NovalentMisApi.isConfigured() && serviceSelect) {
+          window.NovalentMisApi.getServices().then(function (services) {
+            serviceSelect.innerHTML = '';
+            if (services.length === 0) {
+              serviceSelect.innerHTML = '<option value="">No services configured</option>';
+              return;
+            }
+            serviceSelect.appendChild(document.createElement('option')).value = '';
+            serviceSelect.lastChild.textContent = 'Select service…';
+            services.forEach(function (s) {
+              var opt = document.createElement('option');
+              opt.value = s.id;
+              opt.textContent = s.name || ('Service ' + s.id);
+              serviceSelect.appendChild(opt);
+            });
+            if (serviceWrap) serviceWrap.style.display = 'block';
+          }).catch(function () {
+            serviceSelect.innerHTML = '<option value="">Unable to load services</option>';
+          });
         }
-        var subject = 'Staff Request: ' + form.companyName.value + ' - ' + form.roleTitle.value;
-        var body = 'STAFF REQUEST\n\n' +
-          '--- Business ---\n' +
-          'Company: ' + form.companyName.value + '\n' +
-          'Contact: ' + form.contactName.value + '\n' +
-          'Email: ' + form.email.value + '\n' +
-          'Phone: ' + form.phone.value + '\n' +
-          'Address: ' + form.address.value + '\n\n' +
-          '--- Requirements ---\n' +
-          'Role Type: ' + form.roleType.value + '\n' +
-          'Industry: ' + form.industry.value + '\n' +
-          'Job Title: ' + form.roleTitle.value + '\n' +
-          'Start Date: ' + form.startDate.value + '\n' +
-          'Duration: ' + form.duration.value + '\n' +
-          'Hours: ' + form.hoursRequired.value + '\n' +
-          'No. of Staff: ' + (form.numStaff.value || '1') + '\n\n' +
-          'Requirements: ' + (form.requirements.value || '-') + '\n' +
-          'Notes: ' + (form.notes.value || '-');
-        var url = 'mailto:info@novalentstaffing.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-        window.location.href = url;
-        alert('Thank you! Your email client will open to send your request. If it doesn\'t, please email info@novalentstaffing.com with your details.');
-        form.reset();
-      });
-      // Set min date to today
-      document.getElementById('startDate').min = new Date().toISOString().split('T')[0];
+
+        document.getElementById('requestForm').addEventListener('submit', function (e) {
+          e.preventDefault();
+          var form = e.target;
+          if (window.NovalentFormSecurity && !window.NovalentFormSecurity.check(form)) {
+            window.NovalentFormSecurity.showError();
+            return;
+          }
+          if (window.NovalentMisApi && window.NovalentMisApi.isConfigured()) {
+            var sid = document.getElementById('serviceId');
+            var serviceId = sid ? sid.value : '';
+            if (!serviceId) {
+              alert('Please select a service type.');
+              return;
+            }
+            var special = [
+              'Company: ' + (form.companyName.value || ''),
+              'Role type: ' + (form.roleType.value || ''),
+              'Industry: ' + (form.industry.value || ''),
+              'Job title: ' + (form.roleTitle.value || ''),
+              'Start date: ' + (form.startDate.value || ''),
+              'Duration: ' + (form.duration.value || ''),
+              'Hours: ' + (form.hoursRequired.value || ''),
+              'No. of staff: ' + (form.numStaff.value || '1'),
+              'Requirements: ' + (form.requirements.value || '-'),
+              'Notes: ' + (form.notes.value || '-')
+            ].join('\n');
+            var btn = form.querySelector('button[type="submit"]');
+            if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting…'; }
+            window.NovalentMisApi.submitQuote({
+              contact_name: form.contactName.value.trim(),
+              contact_email: form.email.value.trim(),
+              contact_phone: (form.phone.value || '').trim() || null,
+              service_id: parseInt(serviceId, 10),
+              address: form.address.value.trim(),
+              postcode: null,
+              requested_date: form.startDate.value || null,
+              special_requirements: special
+            }).then(function () {
+              alert('Thank you! Your request has been submitted. We\'ll be in touch soon.');
+              form.reset();
+              if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit Request'; }
+            }).catch(function (err) {
+              var msg = (err.errors && typeof err.errors === 'object') ? Object.values(err.errors).flat().filter(Boolean).join(' ') : (err.message || 'Something went wrong. Please try again.');
+              alert(msg);
+              if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit Request'; }
+            });
+            return;
+          }
+          var subject = 'Staff Request: ' + form.companyName.value + ' - ' + form.roleTitle.value;
+          var body = 'STAFF REQUEST\n\n' +
+            '--- Business ---\n' +
+            'Company: ' + form.companyName.value + '\n' +
+            'Contact: ' + form.contactName.value + '\n' +
+            'Email: ' + form.email.value + '\n' +
+            'Phone: ' + form.phone.value + '\n' +
+            'Address: ' + form.address.value + '\n\n' +
+            '--- Requirements ---\n' +
+            'Role Type: ' + form.roleType.value + '\n' +
+            'Industry: ' + form.industry.value + '\n' +
+            'Job Title: ' + form.roleTitle.value + '\n' +
+            'Start Date: ' + form.startDate.value + '\n' +
+            'Duration: ' + form.duration.value + '\n' +
+            'Hours: ' + form.hoursRequired.value + '\n' +
+            'No. of Staff: ' + (form.numStaff.value || '1') + '\n\n' +
+            'Requirements: ' + (form.requirements.value || '-') + '\n' +
+            'Notes: ' + (form.notes.value || '-');
+          var email = typeof window.getNovalentContactEmail === 'function' ? window.getNovalentContactEmail() : (window.NOVALENT_LINKS && window.NOVALENT_LINKS.contactEmail) || '';
+          var url = 'mailto:' + email + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+          window.location.href = url;
+          alert('Thank you! Your email client will open to send your request. If it doesn\'t, please email ' + (email || 'us') + ' with your details.');
+          form.reset();
+        });
+        document.getElementById('startDate').min = new Date().toISOString().split('T')[0];
+      })();
     </script>
   </body>
 

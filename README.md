@@ -1,82 +1,35 @@
-# Novalent Staffing – Marketing Website
+# Novalent Staffing – Marketing site
 
-Static marketing website for Novalent Staffing Ltd, a Portsmouth-based recruitment agency specialising in flexible, part-time staffing solutions.
+Static marketing website for Novalent Staffing Ltd (Portsmouth). Recruitment, services, contact, request staff, jobs list, and apply. No backend of its own; it uses the Novalent MIS public API when configured.
 
 ## Stack
 
-- **HTML5** – Semantic markup
-- **CSS3** – Custom design (Hirxpert-inspired)
-- **JavaScript** – Navigation, mobile menu, scroll effects
+- HTML5, CSS3, JavaScript. No build step; serve as static files.
 
 ## Structure
 
-```
-static/
-├── index.html          # Homepage
-├── about.html          # About us
-├── services.html       # Services
-├── for-employers.html  # For employers
-├── for-jobseekers.html # For job seekers
-├── contact.html        # Contact form
-├── css/
-│   └── style.css       # Main styles
-├── js/
-│   └── main.js         # Core scripts
-└── assets/
-    └── images/         # Local images (optional)
-```
+- **index.html** – Homepage
+- **about.html**, **services.html**, **for-employers.html**, **for-jobseekers.html**
+- **contact.html** – Contact form (submits to MIS when `misApiBase` is set)
+- **request-staff.html** – Quote request (MIS)
+- **jobs.html** – Job listings (MIS `GET /api/v1/jobs`)
+- **apply.html** – Job application (MIS `POST /api/v1/applications`)
+- **css/**, **js/**, **assets/**
 
-## Local Development
+## Config
 
-Serve locally:
+- **js/links-config.js** – Set `misApiBase` to the MIS API base URL (e.g. `http://localhost:8080/novalent/mis/api/public`) so jobs, contact, quote, and apply use the MIS. Leave empty for fallback (sample job, no form submission to MIS).
 
-```bash
-# Python 3
-python3 -m http.server 8000
+## Local run
 
-# PHP
-php -S localhost:8000
+Serve via LAMPP: `http://localhost:8080/novalent/novalentstaffing/`  
+Or: `php -S localhost:8000`, `python3 -m http.server 8000`, or `npx serve .`
 
-# Node (npx)
-npx serve .
-```
+## Security
 
-Then open `http://localhost:8000`.
+- `.htaccess`: security headers, directory listing off.
+- Forms: honeypot, timing check, Cloudflare Turnstile (test key in repo; replace for production), spam filter.
 
-## Security (pre-host)
+## Deploy
 
-- **`.htaccess`** – HTTP security headers (CSP, X-Frame-Options, X-Content-Type-Options, etc.), directory listing disabled, blocks `.bak`, `.sql`, `.log`, `.htpasswd`
-- **Forms** – Honeypot, 5s timing check, Cloudflare Turnstile captcha, spam keyword filter, `maxlength` on inputs
-- **Turnstile** – Uses test key `1x00000000000000000000AA` (always passes). For production: get a site key from [Cloudflare Dashboard](https://dash.cloudflare.com/) → Turnstile, replace in apply.html, contact.html, request-staff.html
-- **Admin** – For public placeholder, consider excluding `admin/` or protecting with basic auth
-
-## Design
-
-- **Theme:** Hirxpert-inspired (professional HR/recruitment)
-- **Colours:** Navy (#0f172a), white, accent blue (#0ea5e9)
-- **Fonts:** Plus Jakarta Sans, DM Sans (Google Fonts)
-- **Images:** Unsplash (stock imagery, free to use)
-
-## Deploy (pull from GitHub)
-
-Use GitHub as staging. On the server:
-
-```bash
-cd /home1/n15dzk3l/novalentstaffing.com
-git pull origin main
-```
-
-First-time setup on server: clone into the document root:
-
-```bash
-cd /home1/n15dzk3l
-git clone https://github.com/malike2356/novalentstaffing-static.git novalentstaffing.com
-```
-
-## Contact Form
-
-The contact form currently shows an alert on submit. For production, wire it to:
-
-- A PHP backend (e.g. `contact.php`)
-- Formspree, Netlify Forms, or similar
-- Your CRM or email API
+This directory is the git repo for the static site. Push to GitHub (`novalentstaffing-static`); deploy with `./deploy_novalent.sh static` from the novalent root. See parent **doc/DEPLOY.md**.

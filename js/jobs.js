@@ -11,26 +11,71 @@
 
   var INDUSTRY_LABELS = { retail: 'Retail', hospitality: 'Hospitality', healthcare: 'Healthcare', logistics: 'Logistics', events: 'Events', cleaning: 'Cleaning', security: 'Security', manufacturing: 'Manufacturing' };
 
-  /* Sample jobs - cleaning, catering, bar, security, factory, Fareham roles */
-  const SAMPLE_JOBS = [
-    { id: 1, title: 'General Cleaner - Part Time', location: 'Portsmouth', type: 'Part-time', hours: '15 hrs/week', rate: '£12.60/hr', rateNum: 12.6, industry: 'cleaning', posted: '2026-02-22', company: 'Novalent Staffing', snippet: 'Part-time cleaners needed. Reliable, enthusiastic, committed to high standards. Morning 5am-9am or Evening 3pm-7pm shifts. Full training given.' },
-    { id: 2, title: 'SIA Security Staff - Restaurant', location: 'Portsmouth (Commercial Road, City Centre)', type: 'Part-time', hours: 'Evenings & weekends', rate: '£12-13/hr', rateNum: 12.5, industry: 'security', posted: '2026-02-23', company: 'Novalent Staffing', snippet: 'SIA licensed door supervisor for restaurant in Portsmouth commercial area near city centre. Evenings and weekend shifts. Valid SIA licence required.' },
-    { id: 3, title: 'Catering Assistant', location: 'Portsmouth', type: 'Part-time', hours: '15-25 hrs/week', rate: '£10.75-11.50/hr', rateNum: 11.25, industry: 'hospitality', posted: '2026-02-21', company: 'Novalent Staffing', snippet: 'Kitchen support and food prep. Weekday and weekend shifts. Ideal for flexible workers. Full training provided.' },
-    { id: 4, title: 'Bar Tender', location: 'Southampton', type: 'Part-time', hours: 'Evenings & weekends', rate: '£11-12/hr', rateNum: 11.5, industry: 'hospitality', posted: '2026-02-20', company: 'Novalent Staffing', snippet: 'Bar staff for busy pub. Mixing drinks, serving customers. Flexible shifts. Experience preferred but training available.' },
-    { id: 5, title: 'Catering Assistant', location: 'Fareham', type: 'Part-time', hours: 'Weekends', rate: '£10.50-11/hr', rateNum: 10.75, industry: 'hospitality', posted: '2026-02-19', company: 'Novalent Staffing', snippet: 'Weekend catering support for events and venues. Food prep, serving, clearing. Regular weekend work available.' },
-    { id: 6, title: 'Factory Worker', location: 'Chichester', type: 'Part-time', hours: '20-30 hrs/week', rate: '£11.50-12.50/hr', rateNum: 12, industry: 'manufacturing', posted: '2026-02-23', company: 'Novalent Staffing', snippet: 'Production line and assembly work. Reliable, good with your hands. Full training provided. Shift patterns available.' },
-    { id: 7, title: 'Warehouse Operative', location: 'Fareham', type: 'Temporary', hours: 'Flexible shifts', rate: '£10.50-11.50/hr', rateNum: 11, industry: 'logistics', posted: '2026-02-22', company: 'Novalent Staffing', snippet: 'Picking, packing and dispatch. Immediate start. Temp-to-perm opportunity for the right candidate.' },
-    { id: 8, title: 'Care Support Worker', location: 'Fareham', type: 'Part-time', hours: '20-25 hrs/week', rate: '£11-12.50/hr', rateNum: 12, industry: 'healthcare', posted: '2026-02-21', company: 'Novalent Staffing', snippet: 'Support clients with daily activities. DBS required. Training provided. Flexible shifts to suit your lifestyle.' },
-    { id: 9, title: 'Retail Assistant', location: 'Fareham', type: 'Part-time', hours: '15-20 hrs/week', rate: '£10.50-11.50/hr', rateNum: 11, industry: 'retail', posted: '2026-02-20', company: 'Novalent Staffing', snippet: 'Customer service, till work and stock replenishment. Weekday and weekend shifts available.' },
-    { id: 10, title: 'Bar Tender', location: 'Portsmouth', type: 'Flexible', hours: 'Evenings & weekends', rate: '£11-12/hr', rateNum: 11.5, industry: 'hospitality', posted: '2026-02-22', company: 'Novalent Staffing', snippet: 'Bar staff for city centre venue. Mixing drinks, customer service. Flexible shifts to suit your schedule.' }
-  ];
-
   const STORAGE_KEYS = {
     jobs: 'novalent_jobs',
+    fallbackJob: 'novalent_jobs_fallback',
     applications: 'novalent_applications',
     staffRequests: 'novalent_staff_requests',
     savedJobs: 'novalent_saved_jobs'
   };
+
+  /** Single sample job for fallback when MIS API is not set or request fails. Stored in localStorage. */
+  var DEFAULT_FALLBACK_JOB = {
+    id: 'fallback-1',
+    title: 'Sample Role – Part Time',
+    location: 'Portsmouth',
+    type: 'Part-time',
+    hours: '15 hrs/week',
+    rate: '£12.60/hr',
+    rateNum: 12.6,
+    industry: 'cleaning',
+    posted: new Date().toISOString().slice(0, 10),
+    company: 'Novalent Staffing',
+    snippet: 'Sample listing. Configure the MIS API in links-config.js (misApiBase) to load live jobs.'
+  };
+
+  function getFallbackJob() {
+    try {
+      var stored = localStorage.getItem(STORAGE_KEYS.fallbackJob);
+      if (stored) {
+        var parsed = JSON.parse(stored);
+        if (parsed && typeof parsed === 'object' && parsed.title) return parsed;
+      }
+    } catch (e) {}
+    localStorage.setItem(STORAGE_KEYS.fallbackJob, JSON.stringify(DEFAULT_FALLBACK_JOB));
+    return DEFAULT_FALLBACK_JOB;
+  }
+
+  /** Map MIS API job to frontend card format */
+  function mapApiJobToFrontend(api) {
+    var loc = (api.location && api.location.address) ? api.location.address : (api.location_address || '');
+    var empType = (api.employment_type_label || api.employment_type || '');
+    if (empType === 'Part Time') empType = 'Part-time';
+    if (empType === 'Full Time') empType = 'Full-time';
+    if (empType === 'Zero Hours') empType = 'Flexible';
+    var rateNum = api.rate_per_hour != null ? parseFloat(api.rate_per_hour) : null;
+    var rateStr = rateNum != null ? '£' + (rateNum % 1 === 0 ? rateNum : rateNum.toFixed(2)) + '/hr' : (api.salary_range || '');
+    return {
+      id: api.id,
+      title: api.title,
+      location: loc,
+      type: empType,
+      hours: api.hours_per_week || '',
+      rate: rateStr,
+      rateNum: rateNum,
+      industry: api.industry || '',
+      posted: api.published_at || api.created_at || '',
+      company: 'Novalent Staffing',
+      snippet: api.description || ''
+    };
+  }
+
+  function getJobs() {
+    if (window.__novalentJobsFromApi && Array.isArray(window.__novalentJobsFromApi)) {
+      return window.__novalentJobsFromApi;
+    }
+    return [getFallbackJob()];
+  }
 
   function getSavedJobIds() {
     try {
@@ -74,19 +119,6 @@
     if (url !== window.location.pathname + window.location.search + (window.location.hash || '')) {
       window.history.replaceState({}, '', url);
     }
-  }
-
-  function getJobs() {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEYS.jobs);
-      return stored ? JSON.parse(stored) : SAMPLE_JOBS;
-    } catch (e) {
-      return SAMPLE_JOBS;
-    }
-  }
-
-  function saveJobs(jobs) {
-    localStorage.setItem(STORAGE_KEYS.jobs, JSON.stringify(jobs));
   }
 
   function getApplications() {
@@ -168,7 +200,7 @@
 
     if (filters.keyword) {
       jobs = jobs.filter(function(j) {
-        var txt = (j.title + ' ' + (j.hours || '') + ' ' + (j.industry || '')).toLowerCase();
+        var txt = (j.title + ' ' + (j.hours || '') + ' ' + (j.industry || '') + ' ' + (j.snippet || '')).toLowerCase();
         return txt.indexOf(filters.keyword) >= 0;
       });
     }
@@ -371,7 +403,23 @@
       applyUrlParamsToForm(params);
     }
 
-    update();
+    function runUpdate() {
+      update();
+    }
+
+    if (window.NovalentMisApi && window.NovalentMisApi.isConfigured()) {
+      container.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i> Loading jobs…</div>';
+      window.NovalentMisApi.getJobs({ per_page: 50 }).then(function(res) {
+        window.__novalentJobsFromApi = (res.data || []).map(mapApiJobToFrontend);
+        runUpdate();
+      }).catch(function() {
+        window.__novalentJobsFromApi = null;
+        runUpdate();
+      });
+    } else {
+      window.__novalentJobsFromApi = null;
+      runUpdate();
+    }
 
     var keywordInput = document.getElementById('searchKeyword');
     var locationSelect = document.getElementById('searchLocation');

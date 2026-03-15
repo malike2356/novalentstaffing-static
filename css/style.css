@@ -586,6 +586,31 @@ main {
   color: rgba(255,255,255,0.6);
 }
 
+.footer-cms-link { margin-top: 0.5rem; }
+.footer-edit-link { color: rgba(255,255,255,0.7); font-size: 0.8125rem; }
+.footer-edit-link:hover { color: var(--accent-light); }
+
+/* Floating "Edit content" pill when ?edit=1 (CMS baked into site) */
+.cms-edit-pill {
+  position: fixed;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  z-index: 999;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.9rem;
+  background: var(--navy-800);
+  color: var(--white);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 999px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+  transition: background 0.2s, transform 0.2s;
+}
+.cms-edit-pill:hover { background: var(--navy-700); color: var(--white); transform: translateY(-2px); }
+
 /* Page header */
 .page-hero {
   padding: 8rem 0 5rem;

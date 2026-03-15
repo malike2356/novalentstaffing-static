@@ -40,7 +40,7 @@
     '<header class="header" id="header">' +
     '  <div class="container">' +
     '    <nav class="nav">' +
-    '      <a href="' + L.home + '" class="logo">Nova<span>lent</span> Staffing</a>' +
+    '      <a href="' + L.home + '" class="logo"><span class="logo-nova">Nova</span><span class="logo-lent">lent</span> <span class="logo-staffing">Staffing</span></a>' +
     '      <ul class="nav-links" id="navLinks">' + navLinksHtml + '</ul>' +
     '      <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span><span></span><span></span></button>' +
     '    </nav>' +
@@ -52,8 +52,8 @@
     '  <div class="container">' +
     '    <div class="footer-grid">' +
     '      <div class="footer-brand">' +
-    '        <div class="logo">Nova<span>lent</span> Staffing</div>' +
-    '        <p>Hampshire\'s trusted recruitment agency for flexible, part-time staffing solutions.</p>' +
+    '        <div class="logo"><span class="logo-nova">Nova</span><span class="logo-lent">lent</span> <span class="logo-staffing">Staffing</span></div>' +
+    '        <p><span data-content="footer_tagline">Hampshire\'s trusted recruitment agency for flexible, part-time staffing solutions.</span></p>' +
     '      </div>' +
     '      <div><h4>Quick Links</h4><ul>' +
     '        <li><a href="' + L.about + '">About</a></li>' +
@@ -70,11 +70,14 @@
     '        <li><a href="' + L.servicesFullTime + '">Full-Time Placements</a></li>' +
     '      </ul></div>' +
     '      <div><h4>Contact</h4><ul>' +
-    '        <li><a href="' + L.email + '">info@novalentstaffing.com</a></li>' +
-    '        <li>Portsmouth &amp; Hampshire, UK</li>' +
+    '        <li><a href="#" data-branding-href="company_email" data-branding-href-prefix="mailto:"><span data-branding="company_email"></span></a></li>' +
+    '        <li><a href="#" data-branding-href="company_phone" data-branding-href-prefix="tel:"><span data-branding="company_phone"></span></a></li>' +
+    '        <li><span data-branding="company_address"></span></li>' +
     '      </ul></div>' +
     '    </div>' +
-    '    <div class="footer-bottom"><p>&copy; 2026 Novalent Staffing Ltd. All rights reserved.</p></div>' +
+    '    <div class="footer-bottom"><p>&copy; 2026 <span data-branding="company_name">Novalent Staffing Ltd</span>. All rights reserved.</p>' +
+    (L.cmsUrl ? '<p class="footer-cms-link"><a href="' + L.cmsUrl + '" target="_blank" rel="noopener" class="footer-edit-link">Edit site content</a></p>' : '') +
+    '    </div>' +
     '  </div>' +
     '</footer>';
 

@@ -22,8 +22,8 @@
     <main>
       <section class="page-hero">
         <div class="container">
-          <h1>Contact Us</h1>
-          <p>Get in touch for staffing solutions or to register as a candidate</p>
+          <h1 data-content="contact_hero_title">Contact Us</h1>
+          <p data-content="contact_hero_subtitle">Get in touch for staffing solutions or to register as a candidate</p>
         </div>
       </section>
 
@@ -31,8 +31,9 @@
         <div class="container">
           <div class="section-header">
             <p class="section-label">Contact</p>
-            <h2>Get in Touch</h2>
-            <p>Whether you're a business looking for staff or a job seeker looking for flexible work — we'd love to hear
+            <h2 data-content="contact_section_heading">Get in Touch</h2>
+            <p data-content="contact_section_intro">Whether you're a business looking for staff or a job seeker looking
+              for flexible work — we'd love to hear
               from you.</p>
           </div>
           <div class="contact-grid">
@@ -44,18 +45,20 @@
                     <div class="icon"><i class="fas fa-envelope"></i></div>
                     <div>
                       <strong>Email</strong><br>
-                      <a href="mailto:info@novalentstaffing.com">info@novalentstaffing.com</a>
+                      <a href="#" data-branding-href="company_email" data-branding-href-prefix="mailto:"><span
+                          data-branding="company_email"></span></a>
                     </div>
                   </div>
                   <div class="contact-item">
                     <div class="icon"><i class="fas fa-map-marker-alt"></i></div>
                     <div>
                       <strong>Location</strong><br>
-                      Portsmouth & Hampshire, UK
+                      <span data-branding="company_address">Portsmouth & Hampshire, UK</span>
                     </div>
                   </div>
                 </div>
-                <p style="margin-top: 1.5rem; margin-bottom: 0; font-size: 0.9375rem; color: var(--navy-500);">We
+                <p style="margin-top: 1.5rem; margin-bottom: 0; font-size: 0.9375rem; color: var(--navy-500);"
+                  data-content="contact_response_time">We
                   typically respond within 24–48 hours during business days.</p>
               </div>
             </div>
@@ -72,6 +75,12 @@
                       <option value="employer">An employer looking for staff</option>
                       <option value="jobseeker">A job seeker looking for work</option>
                       <option value="general">Other enquiry</option>
+                    </select>
+                  </div>
+                  <div class="form-group col-2" id="contactServiceWrap" style="display: none;">
+                    <label for="service_id">Service (optional)</label>
+                    <select id="service_id" name="service_id">
+                      <option value="">— Select —</option>
                     </select>
                   </div>
                   <div class="form-group col-2">
@@ -113,12 +122,51 @@
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <script src="js/main.js"></script>
     <script src="js/form-security.js"></script>
+    <script src="js/mis-api.js"></script>
+    <script src="js/branding.js"></script>
     <script>
+      (function () {
+        if (window.NovalentMisApi && window.NovalentMisApi.isConfigured() && window.NovalentMisApi.getServices) {
+          window.NovalentMisApi.getServices().then(function (services) {
+            var wrap = document.getElementById('contactServiceWrap');
+            var sel = document.getElementById('service_id');
+            if (!wrap || !sel || !services || services.length === 0) return;
+            services.forEach(function (s) {
+              var opt = document.createElement('option');
+              opt.value = s.id;
+              opt.textContent = s.name || ('Service ' + s.id);
+              sel.appendChild(opt);
+            });
+            wrap.style.display = '';
+          }).catch(function () { });
+        }
+      })();
       document.getElementById('contactForm').addEventListener('submit', function (e) {
         e.preventDefault();
         var form = e.target;
         if (window.NovalentFormSecurity && !window.NovalentFormSecurity.check(form)) {
           window.NovalentFormSecurity.showError();
+          return;
+        }
+        if (window.NovalentMisApi && window.NovalentMisApi.isConfigured()) {
+          var btn = form.querySelector('button[type="submit"]');
+          if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+          window.NovalentMisApi.submitContact({
+            contact_name: form.name.value.trim(),
+            contact_email: form.email.value.trim(),
+            contact_phone: (form.phone.value || '').trim() || null,
+            message: form.message.value.trim(),
+            enquiry: (form.enquiry && form.enquiry.value) || null,
+            service_id: (form.service_id && form.service_id.value) || null
+          }).then(function () {
+            alert('Thank you. Your message has been sent.');
+            form.reset();
+            if (btn) { btn.disabled = false; btn.textContent = 'Send Message'; }
+          }).catch(function (err) {
+            var msg = (err.errors && (err.errors.contact_email || err.errors.contact_name || err.errors.message)) ? Object.values(err.errors).flat().join(' ') : (err.message || 'Something went wrong. Please try again.');
+            alert(msg);
+            if (btn) { btn.disabled = false; btn.textContent = 'Send Message'; }
+          });
           return;
         }
         var enquiryText = form.enquiry.options[form.enquiry.selectedIndex].text;
@@ -129,9 +177,10 @@
           'Email: ' + form.email.value + '\n' +
           'Phone: ' + (form.phone.value || '-') + '\n\n' +
           'Message:\n' + form.message.value;
-        var url = 'mailto:info@novalentstaffing.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+        var email = typeof window.getNovalentContactEmail === 'function' ? window.getNovalentContactEmail() : (window.NOVALENT_LINKS && window.NOVALENT_LINKS.contactEmail) || '';
+        var url = 'mailto:' + email + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
         window.location.href = url;
-        alert('Thank you! Your email client will open to send your message. If it doesn\'t, please email info@novalentstaffing.com directly.');
+        alert('Thank you! Your email client will open to send your message. If it doesn\'t, please email ' + (email || 'us') + ' directly.');
       });
     </script>
   </body>

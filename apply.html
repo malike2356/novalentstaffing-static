@@ -39,19 +39,19 @@
             <div class="carousel-inner">
               <div class="carousel-slide active">
                 <img src="assets/images/candidate-interview.jpg" alt="Job application process">
-                <p class="img-caption">Submit your application</p>
+                <p class="img-caption" data-content="apply_carousel_cap_1">Submit your application</p>
               </div>
               <div class="carousel-slide">
                 <img src="assets/images/handshake.jpg" alt="Career start">
-                <p class="img-caption">We'll be in touch soon</p>
+                <p class="img-caption" data-content="apply_carousel_cap_2">We'll be in touch soon</p>
               </div>
               <div class="carousel-slide">
                 <img src="assets/images/flexible-work.jpg" alt="Flexible roles">
-                <p class="img-caption">Roles across Hampshire</p>
+                <p class="img-caption" data-content="apply_carousel_cap_3">Roles across Hampshire</p>
               </div>
               <div class="carousel-slide">
                 <img src="assets/images/interview.jpg" alt="Interview process">
-                <p class="img-caption">Quality placements</p>
+                <p class="img-caption" data-content="apply_carousel_cap_4">Quality placements</p>
               </div>
             </div>
             <button class="carousel-prev" type="button" aria-label="Previous"><i
@@ -76,7 +76,7 @@
                 </ul>
               </div>
             </div>
-            <div class="form-card">
+            <div class="form-card" id="applyFormCard">
               <form id="applyForm">
                 <input type="hidden" id="jobId" name="jobId">
                 <div style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;" aria-hidden="true">
@@ -112,10 +112,21 @@
                     <textarea id="experience" name="experience" required rows="2" maxlength="2000"
                       placeholder="Brief summary of your work experience"></textarea>
                   </div>
+                  <div class="form-group col-2">
+                    <label for="cv_file">CV / Resume * (PDF, DOC or DOCX, max 5MB)</label>
+                    <input type="file" id="cv_file" name="cv_file" accept=".pdf,.doc,.docx" required
+                      aria-required="true">
+                  </div>
                   <div class="form-group col-4">
                     <label class="checkbox-label">
                       <input type="checkbox" id="rightToWork" name="rightToWork" required>
                       I confirm I have the right to work in the UK *
+                    </label>
+                  </div>
+                  <div class="form-group col-4">
+                    <label class="checkbox-label">
+                      <input type="checkbox" id="keepOnFile" name="keepOnFile" value="1">
+                      Keep my details on file for future roles
                     </label>
                   </div>
                   <div class="form-group col-4">
@@ -128,6 +139,18 @@
                   </div>
                 </div>
               </form>
+              <div id="applySuccessMessage" class="form-card" style="display: none; padding: 1.75rem;">
+                <h3 style="margin-top: 0;"><i class="fas fa-check-circle" style="color: var(--accent);"></i> Application
+                  received</h3>
+                <p>Thank you. We have your application and will be in touch if your experience matches the role.</p>
+                <p id="applySuccessStatusLinkWrap" style="display: none;">You can track your application status anytime:
+                  <a id="applySuccessStatusLink" href="#" target="_blank" rel="noopener">View application status</a>.
+                </p>
+                <p id="applySuccessTemperamentWrap" style="display: none;">Complete a short temperament assessment to
+                  help us match you to the right role: <a id="applySuccessTemperamentLink" href="#"
+                    class="btn btn-primary btn-sm">Start assessment</a>.</p>
+                <p><a href="jobs" class="btn btn-outline">Back to jobs</a></p>
+              </div>
             </div>
           </div>
         </div>
@@ -143,6 +166,8 @@
     <script src="js/carousel.js"></script>
     <script src="js/jobs.js"></script>
     <script src="js/form-security.js"></script>
+    <script src="js/mis-api.js"></script>
+    <script src="js/branding.js"></script>
     <script>
       (function () {
         var params = new URLSearchParams(window.location.search);
@@ -168,6 +193,59 @@
             window.NovalentFormSecurity.showError();
             return;
           }
+          var cvInput = form.querySelector('input[name="cv_file"]');
+          if (cvInput && (!cvInput.files || !cvInput.files[0])) {
+            alert('Please upload your CV (PDF, DOC or DOCX).');
+            return;
+          }
+          if (window.NovalentMisApi && window.NovalentMisApi.isConfigured()) {
+            var fullName = (form.fullName.value || '').trim();
+            var nameParts = fullName.split(/\s+/).filter(Boolean);
+            var firstName = nameParts[0] || '';
+            var lastName = nameParts.slice(1).join(' ') || firstName;
+            var fd = new FormData();
+            fd.append('job_id', (form.jobId && form.jobId.value) ? form.jobId.value : '');
+            fd.append('first_name', firstName);
+            fd.append('last_name', lastName);
+            fd.append('email', form.email.value.trim());
+            fd.append('phone', form.phone.value.trim());
+            fd.append('address', (form.location && form.location.value) ? form.location.value.trim() : '');
+            fd.append('postcode', '');
+            fd.append('availability', (form.availability && form.availability.value) ? form.availability.value.trim() : '');
+            fd.append('previous_experience', (form.experience && form.experience.value) ? form.experience.value.trim() : '');
+            fd.append('keep_on_file_consent', (form.keepOnFile && form.keepOnFile.checked) ? '1' : '0');
+            fd.append('cv_file', cvInput.files[0]);
+            var btn = form.querySelector('button[type="submit"]');
+            if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting…'; }
+            window.NovalentMisApi.submitApplication(fd).then(function (res) {
+              var formCard = document.getElementById('applyFormCard');
+              var form = document.getElementById('applyForm');
+              var successEl = document.getElementById('applySuccessMessage');
+              var statusLinkWrap = document.getElementById('applySuccessStatusLinkWrap');
+              var statusLink = document.getElementById('applySuccessStatusLink');
+              var temperamentWrap = document.getElementById('applySuccessTemperamentWrap');
+              var temperamentLink = document.getElementById('applySuccessTemperamentLink');
+              if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit Application'; }
+              if (form) { form.reset(); form.style.display = 'none'; }
+              if (res.data && res.data.status_view_url && statusLink) {
+                statusLink.href = res.data.status_view_url;
+                if (statusLinkWrap) statusLinkWrap.style.display = 'block';
+              }
+              if (res.data && res.data.temperament_redirect_url && temperamentLink) {
+                temperamentLink.href = res.data.temperament_redirect_url;
+                if (temperamentWrap) temperamentWrap.style.display = 'block';
+              }
+              if (successEl) {
+                successEl.style.display = 'block';
+                successEl.setAttribute('aria-live', 'polite');
+              }
+            }).catch(function (err) {
+              var msg = (err.errors && typeof err.errors === 'object') ? Object.values(err.errors).flat().filter(Boolean).join(' ') : (err.message || 'Something went wrong. Please try again.');
+              alert(msg);
+              if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit Application'; }
+            });
+            return;
+          }
           var jobTitle = (job && job.title) ? job.title : ('Job ' + (form.jobId.value || ''));
           var subject = 'Job Application: ' + jobTitle + ' - ' + form.fullName.value;
           var body = 'JOB APPLICATION\n\n' +
@@ -180,9 +258,10 @@
             'Availability:\n' + form.availability.value + '\n\n' +
             'Relevant Experience:\n' + form.experience.value + '\n\n' +
             'Right to Work: Confirmed (checkbox)';
-          var url = 'mailto:info@novalentstaffing.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+          var email = typeof window.getNovalentContactEmail === 'function' ? window.getNovalentContactEmail() : (window.NOVALENT_LINKS && window.NOVALENT_LINKS.contactEmail) || '';
+          var url = 'mailto:' + email + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
           window.location.href = url;
-          alert('Thank you! Your email client will open to send your application. If it doesn\'t, please email info@novalentstaffing.com with your details.');
+          alert('Thank you! Your email client will open to send your application. If it doesn\'t, please email ' + (email || 'us') + ' with your details.');
           window.location.href = 'jobs';
         });
       })();
