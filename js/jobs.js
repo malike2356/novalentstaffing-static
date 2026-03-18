@@ -55,18 +55,29 @@
     if (empType === 'Zero Hours') empType = 'Flexible';
     var rateNum = api.rate_per_hour != null ? parseFloat(api.rate_per_hour) : null;
     var rateStr = rateNum != null ? '£' + (rateNum % 1 === 0 ? rateNum : rateNum.toFixed(2)) + '/hr' : (api.salary_range || '');
+    var fullDescription = api.description || '';
+    var snippet = truncateText(fullDescription, 100);
+    var hoursRaw = (api.hours_per_week != null ? String(api.hours_per_week) : '').trim();
+    var hours = '';
+    if (hoursRaw) {
+      // If admin entered just a number/range, show as "X Hours per week"
+      var looksNumeric = /^[0-9]+(\s*-\s*[0-9]+)?$/.test(hoursRaw);
+      var alreadyHasUnit = /hour/i.test(hoursRaw);
+      hours = (looksNumeric || !alreadyHasUnit) ? (hoursRaw + ' Hours per week') : hoursRaw;
+    }
     return {
       id: api.id,
       title: api.title,
       location: loc,
       type: empType,
-      hours: api.hours_per_week || '',
+      hours: hours,
       rate: rateStr,
       rateNum: rateNum,
       industry: api.industry || '',
       posted: api.published_at || api.created_at || '',
       company: 'Novalent Staffing',
-      snippet: api.description || '',
+      description: fullDescription,
+      snippet: snippet,
       requirements: api.requirements || '',
       responsibilities: api.responsibilities || ''
     };
@@ -307,7 +318,7 @@
       var posted = formatPostedDate(job.posted);
       var isNew = (new Date() - new Date(job.posted)) < 3 * 24 * 60 * 60 * 1000;
       var indLabel = job.industry && INDUSTRY_LABELS[job.industry] ? INDUSTRY_LABELS[job.industry] : '';
-      var hasDetails = (job.requirements && job.requirements.trim()) || (job.responsibilities && job.responsibilities.trim());
+      var hasDetails = (job.description && job.description.trim()) || (job.requirements && job.requirements.trim()) || (job.responsibilities && job.responsibilities.trim());
       var badges = [];
       if (isNew) badges.push('<span class="job-badge job-badge-new">New</span>');
       if (indLabel) badges.push('<span class="job-badge job-badge-industry">' + escapeHtml(indLabel) + '</span>');
@@ -323,6 +334,9 @@
 
       var detailsHtml = hasDetails
         ? '<div class="job-details" style="display:none;">' +
+            (job.description && job.description.trim()
+              ? '<h4>Description</h4><p>' + escapeHtml(job.description) + '</p>'
+              : '') +
             (job.requirements && job.requirements.trim()
               ? '<h4>Requirements</h4><p>' + escapeHtml(job.requirements) + '</p>'
               : '') +
@@ -349,7 +363,7 @@
         '</div>' +
         (job.snippet ? '<p class="job-snippet">' + escapeHtml(job.snippet) + '</p>' : '') +
         detailsHtml +
-        '<div class="job-card-actions" style="text-align:right; margin-top:0.75rem;">' +
+        '<div class="job-card-actions">' +
           (detailsButtonHtml ? detailsButtonHtml : '') +
           applyButtonHtml +
         '</div>' +
@@ -537,6 +551,13 @@
     const d = document.createElement('div');
     d.textContent = s;
     return d.innerHTML;
+  }
+
+  function truncateText(text, maxChars) {
+    var t = (text || '').replace(/\s+/g, ' ').trim();
+    if (!t) return '';
+    if (t.length <= maxChars) return t;
+    return t.slice(0, Math.max(0, maxChars - 1)).trimEnd() + '…';
   }
 
   if (document.readyState === 'loading') {
