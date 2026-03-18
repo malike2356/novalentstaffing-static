@@ -610,15 +610,15 @@ a:hover { color: var(--gold-dark); }
 /* Grid view: show list on left and details panel on right (desktop only) */
 .jobs-container { display: block; }
 .job-details-panel { display: none; }
-@media (min-width: 1024px) {
+@media (min-width: 900px) {
   .jobs-container.jobs-container-gridpanel {
     display: grid;
     grid-template-columns: minmax(320px, 1fr) minmax(340px, 420px);
     gap: 1.25rem;
     align-items: start;
   }
-  .jobs-container.jobs-container-gridpanel .jobs-list { order: 1; }
-  .jobs-container.jobs-container-gridpanel .job-details-panel { display: block; order: 2; position: sticky; top: 96px; }
+  .jobs-container.jobs-container-gridpanel .jobs-list { grid-column: 1; }
+  .jobs-container.jobs-container-gridpanel .job-details-panel { display: block; grid-column: 2; position: sticky; top: 96px; }
   .job-details-panel-inner {
     background: var(--white);
     border: 1px solid var(--gray-200);
