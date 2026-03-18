@@ -242,6 +242,8 @@
 
   function renderJobs() {
     var container = document.getElementById('jobsList');
+    var detailsPanel = document.getElementById('jobDetailsPanel');
+    var jobsContainer = container ? container.closest('.jobs-container') : null;
     var resultsEl = document.getElementById('resultsCount');
     var activeFiltersEl = document.getElementById('activeFilters');
     var loadMoreWrap = document.getElementById('loadMoreWrap');
@@ -252,6 +254,7 @@
 
     var displayCount = JOBS_PER_PAGE;
     var currentView = 'list';
+    var selectedGridJobId = null;
 
     function applyUrlParamsToForm(params) {
       if (params.q && (params.q = params.q.trim())) {
@@ -324,7 +327,8 @@
       if (indLabel) badges.push('<span class="job-badge job-badge-industry">' + escapeHtml(indLabel) + '</span>');
       if (applied) badges.push('<span class="job-badge job-badge-applied"><i class="fas fa-check"></i> Applied</span>');
 
-      var detailsButtonHtml = hasDetails
+      // List view uses inline "View details". Grid view uses the right-side panel (Indeed-style).
+      var detailsButtonHtml = (!opts.grid && hasDetails)
         ? '<button type="button" class="btn btn-outline-secondary job-more-btn" aria-expanded="false">View details</button>'
         : '';
 
@@ -332,7 +336,7 @@
         ? '<span class="btn btn-applied"><i class="fas fa-check"></i> Applied</span>'
         : '<a href="apply?id=' + job.id + '" class="btn btn-primary">Easy Apply</a>';
 
-      var detailsHtml = hasDetails
+      var detailsHtml = (!opts.grid && hasDetails)
         ? '<div class="job-details" style="display:none;">' +
             (job.description && job.description.trim()
               ? '<h4>Description</h4><p>' + escapeHtml(job.description) + '</p>'
@@ -346,7 +350,7 @@
           '</div>'
         : '';
 
-      return '<article class="job-card' + (opts.grid ? ' job-card-grid' : '') + '" data-id="' + job.id + '">' +
+      return '<article class="job-card' + (opts.grid ? ' job-card-grid job-card-selectable' : '') + '" data-id="' + job.id + '">' +
         '<div class="job-card-main">' +
         '<div class="job-card-header">' +
         '<h3><a href="apply?id=' + job.id + '">' + escapeHtml(job.title) + '</a></h3>' +
@@ -369,6 +373,67 @@
         '</div>' +
         '</div>' +
         '</article>';
+    }
+
+    function renderGridDetails(job, full) {
+      if (!detailsPanel) return;
+      var title = escapeHtml(job.title || '');
+      var location = escapeHtml(job.location || '');
+      var type = escapeHtml(job.type || '');
+      var rate = escapeHtml(job.rate || '');
+      var hours = escapeHtml(job.hours || '');
+      var posted = escapeHtml(formatPostedDate(job.posted || ''));
+
+      var desc = (full && full.description) ? String(full.description) : (job.description || '');
+      var req = (full && full.requirements) ? String(full.requirements) : (job.requirements || '');
+      var resp = (full && full.responsibilities) ? String(full.responsibilities) : (job.responsibilities || '');
+
+      detailsPanel.querySelector('.job-details-panel-inner').innerHTML =
+        '<div class="job-details-panel-header">' +
+          '<h3 style="margin:0 0 0.25rem 0;">' + title + '</h3>' +
+          '<div class="job-meta" style="margin:0.5rem 0 0;">' +
+            (location ? '<span><i class="fas fa-map-marker-alt"></i> ' + location + '</span>' : '') +
+            (type ? '<span><i class="fas fa-briefcase"></i> ' + type + '</span>' : '') +
+            (rate ? '<span class="job-rate"><i class="fas fa-pound-sign"></i> ' + rate + '</span>' : '') +
+            (hours ? '<span class="job-hours"><i class="far fa-clock"></i> ' + hours + '</span>' : '') +
+            (posted ? '<span class="job-posted">' + posted + '</span>' : '') +
+          '</div>' +
+          '<div class="job-details-panel-actions">' +
+            '<a class="btn btn-primary" href="apply?id=' + encodeURIComponent(job.id) + '">Easy Apply</a>' +
+          '</div>' +
+        '</div>' +
+        '<div class="job-details-panel-body">' +
+          (desc && desc.trim() ? '<h4>Description</h4><p>' + escapeHtml(desc) + '</p>' : '') +
+          (req && req.trim() ? '<h4>Requirements</h4><p>' + escapeHtml(req) + '</p>' : '') +
+          (resp && resp.trim() ? '<h4>Responsibilities</h4><p>' + escapeHtml(resp) + '</p>' : '') +
+        '</div>';
+    }
+
+    function selectGridJob(id, jobs) {
+      selectedGridJobId = String(id);
+      if (!container) return;
+      container.querySelectorAll('.job-card.job-card-selectable').forEach(function(card) {
+        card.classList.toggle('selected', String(card.dataset.id) === selectedGridJobId);
+      });
+      var job = (jobs || []).find(function(j) { return String(j.id) === selectedGridJobId; });
+      if (!job) return;
+
+      // Show loading state then fetch full details when MIS API is configured.
+      if (detailsPanel) {
+        detailsPanel.style.display = '';
+        var inner = detailsPanel.querySelector('.job-details-panel-inner');
+        if (inner) inner.innerHTML = '<div class="job-details-panel-empty"><p><i class="fas fa-spinner fa-spin"></i> Loading details…</p></div>';
+      }
+
+      if (window.NovalentMisApi && window.NovalentMisApi.isConfigured && window.NovalentMisApi.isConfigured()) {
+        window.NovalentMisApi.getJob(job.id).then(function(full) {
+          renderGridDetails(job, full || null);
+        }).catch(function() {
+          renderGridDetails(job, null);
+        });
+      } else {
+        renderGridDetails(job, null);
+      }
     }
 
     function update() {
@@ -406,6 +471,15 @@
 
       var useGrid = currentView === 'grid';
       container.innerHTML = toShow.map(function(job) { return buildJobCard(job, { grid: useGrid }); }).join('');
+      container.className = 'jobs-list jobs-view-' + currentView;
+
+      // Toggle Indeed-style panel only for grid view on desktop
+      if (jobsContainer) {
+        jobsContainer.classList.toggle('jobs-container-gridpanel', useGrid);
+      }
+      if (detailsPanel) {
+        detailsPanel.style.display = useGrid ? '' : 'none';
+      }
 
       container.querySelectorAll('.job-save-btn').forEach(function(btn) {
         btn.addEventListener('click', function(e) {
@@ -423,6 +497,7 @@
         });
       });
 
+      // List view: inline details toggle
       container.querySelectorAll('.job-more-btn').forEach(function(btn) {
         btn.addEventListener('click', function(e) {
           e.preventDefault();
@@ -437,6 +512,27 @@
         });
       });
 
+      // Grid view: select card to populate side panel
+      if (useGrid) {
+        container.querySelectorAll('.job-card.job-card-selectable').forEach(function(card) {
+          card.addEventListener('click', function(e) {
+            // ignore clicks on Easy Apply link or bookmark
+            var t = e.target;
+            if (t && (t.closest('a') || t.closest('.job-save-btn') || t.closest('.btn'))) return;
+            selectGridJob(card.dataset.id, toShow);
+          });
+        });
+        // Auto-select first visible card if none selected
+        if (!selectedGridJobId && toShow.length) {
+          selectGridJob(toShow[0].id, toShow);
+        } else if (selectedGridJobId) {
+          // keep selection when filtering/sorting
+          var stillVisible = toShow.some(function(j) { return String(j.id) === String(selectedGridJobId); });
+          if (!stillVisible && toShow.length) selectGridJob(toShow[0].id, toShow);
+          else if (stillVisible) selectGridJob(selectedGridJobId, toShow);
+        }
+      }
+
       if (loadMoreWrap) loadMoreWrap.style.display = hasMore ? 'block' : 'none';
       if (loadMoreBtn) {
         loadMoreBtn.onclick = function() {
@@ -445,7 +541,6 @@
         };
       }
 
-      container.className = 'jobs-list jobs-view-' + currentView;
     }
 
     var params = readUrlParams();

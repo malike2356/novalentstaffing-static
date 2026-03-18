@@ -50,7 +50,7 @@
             <button type="button" class="chip" data-type="Temporary">Temporary</button>
             <button type="button" class="chip" data-type="Flexible">Flexible</button>
           </div>
-          <a href="#" class="saved-jobs-link" id="savedJobsLink" style="display:none">
+          <a href="#" class="saved-jobs-link" id="savedJobsLink">
             <i class="fas fa-bookmark"></i> <span id="savedJobsCount">0</span> saved
           </a>
         </div>
@@ -98,10 +98,19 @@
             </div>
           </div>
           <div class="jobs-container">
+            <!-- Indeed-style details panel (used only in GRID view on desktop) -->
+            <aside class="job-details-panel" id="jobDetailsPanel" aria-live="polite">
+              <div class="job-details-panel-inner">
+                <div class="job-details-panel-empty">
+                  <h3>Select a job</h3>
+                  <p>Click a job card to preview the full description, requirements, and responsibilities here.</p>
+                </div>
+              </div>
+            </aside>
             <div class="jobs-list jobs-view-list" id="jobsList">
               <!-- Populated by jobs.js -->
             </div>
-            <div class="jobs-load-more" id="loadMoreWrap" style="display:none">
+            <div class="jobs-load-more" id="loadMoreWrap">
               <button type="button" class="btn btn-outline-teal" id="loadMoreBtn">Load more jobs</button>
             </div>
           </div>
@@ -117,7 +126,7 @@
     <script src="js/mis-api.js"></script>
     <script src="js/branding.js"></script>
     <!-- Cache-busted so Cloudflare/browsers pull latest jobs.js -->
-    <script src="js/jobs.js?v=jobs-20260318-3"></script>
+    <script src="js/jobs.js?v=jobs-20260318-gridpanel-1"></script>
   </body>
 
 </html>
