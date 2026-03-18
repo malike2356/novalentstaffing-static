@@ -633,6 +633,19 @@ a:hover { color: var(--gold-dark); }
   .job-details-panel .job-details-panel-body h4 { font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray-600); margin: 1rem 0 0.35rem; }
   .job-details-panel .job-details-panel-body p { margin: 0 0 0.75rem; line-height: 1.6; }
   .jobs-container.jobs-container-gridpanel .jobs-load-more { grid-column: 1; grid-row: 2; }
+
+  /* Indeed-style: scroll the left list only, keep details panel fixed */
+  .jobs-container.jobs-container-gridpanel { max-height: calc(100vh - 140px); overflow: hidden; }
+  .jobs-container.jobs-container-gridpanel .jobs-list { overflow-y: auto; padding-right: 0.25rem; }
+
+  /* Remove the "giant gap": in split mode, keep grid cards full-width (single column) */
+  .jobs-container.jobs-container-gridpanel .jobs-list.jobs-view-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    justify-items: stretch;
+  }
+  .jobs-container.jobs-container-gridpanel .jobs-list.jobs-view-grid .job-card { width: 100%; }
 }
 .job-card {
   display: grid;
