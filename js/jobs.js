@@ -313,23 +313,24 @@
       if (indLabel) badges.push('<span class="job-badge job-badge-industry">' + escapeHtml(indLabel) + '</span>');
       if (applied) badges.push('<span class="job-badge job-badge-applied"><i class="fas fa-check"></i> Applied</span>');
 
-      var actionHtml = applied
-        ? '<span class="btn btn-applied"><i class="fas fa-check"></i> Applied</span>'
-        : '<a href="apply?id=' + job.id + '" class="btn btn-primary">Easy Apply</a>';
+      var detailsButtonHtml = hasDetails
+        ? '<button type="button" class="btn btn-outline-secondary btn-sm job-more-btn" aria-expanded="false">View details</button>'
+        : '';
 
-      var detailsHtml = '';
-      if (hasDetails) {
-        detailsHtml =
-          '<button type="button" class="btn btn-link btn-sm job-more-btn" aria-expanded="false">View details</button>' +
-          '<div class="job-details" style="display:none;">' +
+      var applyButtonHtml = applied
+        ? '<span class="btn btn-applied btn-sm"><i class="fas fa-check"></i> Applied</span>'
+        : '<a href="apply?id=' + job.id + '" class="btn btn-primary btn-sm">Easy Apply</a>';
+
+      var detailsHtml = hasDetails
+        ? '<div class="job-details" style="display:none;">' +
             (job.requirements && job.requirements.trim()
               ? '<h4>Requirements</h4><p>' + escapeHtml(job.requirements) + '</p>'
               : '') +
             (job.responsibilities && job.responsibilities.trim()
               ? '<h4>Responsibilities</h4><p>' + escapeHtml(job.responsibilities) + '</p>'
               : '') +
-          '</div>';
-      }
+          '</div>'
+        : '';
 
       return '<article class="job-card' + (opts.grid ? ' job-card-grid' : '') + '" data-id="' + job.id + '">' +
         '<div class="job-card-main">' +
@@ -343,13 +344,16 @@
         '<span><i class="fas fa-map-marker-alt"></i> ' + escapeHtml(job.location) + '</span>' +
         '<span><i class="fas fa-briefcase"></i> ' + escapeHtml(job.type) + '</span>' +
         '<span class="job-rate"><i class="fas fa-pound-sign"></i> ' + escapeHtml(job.rate) + '</span>' +
+        (job.hours ? '<span class="job-hours"><i class="far fa-clock"></i> ' + escapeHtml(job.hours) + '</span>' : '') +
         '<span class="job-posted">' + posted + '</span>' +
         '</div>' +
         (job.snippet ? '<p class="job-snippet">' + escapeHtml(job.snippet) + '</p>' : '') +
-        '<p class="job-hours">' + escapeHtml(job.hours || '') + '</p>' +
-        detailsHtml +
         '</div>' +
-        '<div class="job-card-actions">' + actionHtml + '</div>' +
+        '<div class="job-card-actions">' +
+          (detailsButtonHtml ? detailsButtonHtml : '') +
+          applyButtonHtml +
+        '</div>' +
+        detailsHtml +
         '</article>';
     }
 
