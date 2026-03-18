@@ -314,12 +314,12 @@
       if (applied) badges.push('<span class="job-badge job-badge-applied"><i class="fas fa-check"></i> Applied</span>');
 
       var detailsButtonHtml = hasDetails
-        ? '<button type="button" class="btn btn-outline-secondary btn-sm job-more-btn" aria-expanded="false">View details</button>'
+        ? '<button type="button" class="btn btn-outline-secondary job-more-btn" aria-expanded="false">View details</button>'
         : '';
 
       var applyButtonHtml = applied
-        ? '<span class="btn btn-applied btn-sm"><i class="fas fa-check"></i> Applied</span>'
-        : '<a href="apply?id=' + job.id + '" class="btn btn-primary btn-sm">Easy Apply</a>';
+        ? '<span class="btn btn-applied"><i class="fas fa-check"></i> Applied</span>'
+        : '<a href="apply?id=' + job.id + '" class="btn btn-primary">Easy Apply</a>';
 
       var detailsHtml = hasDetails
         ? '<div class="job-details" style="display:none;">' +
