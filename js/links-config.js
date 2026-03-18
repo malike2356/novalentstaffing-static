@@ -7,7 +7,8 @@
  * On novalentstaffing.co.uk we use the live MIS; otherwise local.
  */
 (function() {
-  var isProduction = typeof window !== 'undefined' && window.location && window.location.hostname === 'novalentstaffing.co.uk';
+  var isProduction = typeof window !== 'undefined' && window.location &&
+    (window.location.hostname === 'novalentstaffing.co.uk' || window.location.hostname === 'www.novalentstaffing.co.uk');
   window.NOVALENT_LINKS = {
     home: '.',
     about: 'about',
