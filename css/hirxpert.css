@@ -636,8 +636,7 @@ a:hover { color: var(--gold-dark); }
   .jobs-container.jobs-container-gridpanel .jobs-load-more { grid-column: 1; grid-row: 2; }
 
   /* Indeed-style: scroll the left list only, keep details panel fixed */
-  .jobs-container.jobs-container-gridpanel { max-height: calc(100vh - 140px); overflow: hidden; }
-  .jobs-container.jobs-container-gridpanel .jobs-list { overflow-y: auto; padding-right: 0.25rem; }
+  .jobs-container.jobs-container-gridpanel .jobs-list { max-height: calc(100vh - 140px); overflow-y: auto; padding-right: 0.25rem; }
 
   /* Right panel: inner scroll if content is long, but panel stays in view */
   .jobs-container.jobs-container-gridpanel .job-details-panel-inner {

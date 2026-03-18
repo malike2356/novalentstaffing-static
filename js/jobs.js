@@ -255,6 +255,7 @@
     var displayCount = JOBS_PER_PAGE;
     var currentView = 'list';
     var selectedGridJobId = null;
+    var wheelHandlerAttached = false;
 
     function applyUrlParamsToForm(params) {
       if (params.q && (params.q = params.q.trim())) {
@@ -479,6 +480,51 @@
       }
       if (detailsPanel) {
         detailsPanel.style.display = useGrid ? '' : 'none';
+      }
+
+      // Grid view: smart scrolling (right panel first if it can scroll, then left list; otherwise page scroll)
+      if (useGrid && !wheelHandlerAttached) {
+        wheelHandlerAttached = true;
+        window.addEventListener('wheel', function (e) {
+          if (!jobsContainer || !jobsContainer.classList.contains('jobs-container-gridpanel')) return;
+          // Only intercept when the wheel event happens over the jobs container area
+          if (!e.target || !jobsContainer.contains(e.target)) return;
+
+          var deltaY = e.deltaY || 0;
+          if (deltaY === 0) return;
+
+          var left = container;
+          var right = detailsPanel ? detailsPanel.querySelector('.job-details-panel-inner') : null;
+
+          function canScroll(el, dy) {
+            if (!el) return false;
+            var maxScroll = el.scrollHeight - el.clientHeight;
+            if (maxScroll <= 1) return false;
+            if (dy > 0) return el.scrollTop < maxScroll - 1;
+            return el.scrollTop > 1;
+          }
+
+          function scrollBy(el, dy) {
+            if (!el) return;
+            el.scrollTop += dy;
+          }
+
+          // If the right panel can scroll in this direction, consume the scroll there first.
+          if (canScroll(right, deltaY)) {
+            e.preventDefault();
+            scrollBy(right, deltaY);
+            return;
+          }
+
+          // Otherwise, let the left list scroll if it can.
+          if (canScroll(left, deltaY)) {
+            e.preventDefault();
+            scrollBy(left, deltaY);
+            return;
+          }
+
+          // Otherwise, allow the page to scroll naturally.
+        }, { passive: false });
       }
 
       container.querySelectorAll('.job-save-btn').forEach(function(btn) {
