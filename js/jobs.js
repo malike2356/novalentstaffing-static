@@ -348,12 +348,12 @@
         '<span class="job-posted">' + posted + '</span>' +
         '</div>' +
         (job.snippet ? '<p class="job-snippet">' + escapeHtml(job.snippet) + '</p>' : '') +
-        '</div>' +
-        '<div class="job-card-actions">' +
+        detailsHtml +
+        '<div class="job-card-actions" style="text-align:right; margin-top:0.75rem;">' +
           (detailsButtonHtml ? detailsButtonHtml : '') +
           applyButtonHtml +
         '</div>' +
-        detailsHtml +
+        '</div>' +
         '</article>';
     }
 
