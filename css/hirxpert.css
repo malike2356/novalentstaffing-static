@@ -666,7 +666,7 @@ a:hover { color: var(--gold-dark); }
 .job-posted { color: var(--gray-500); font-size: inherit; }
 /* When job-hours is used inside job-meta (span), keep font consistent */
 .job-meta .job-hours { font-size: inherit; color: inherit; margin: 0; }
-.job-card-actions { flex-shrink: 0; display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 0.75rem; }
+.job-card-actions { flex-shrink: 0; display: flex; gap: 1rem; justify-content: flex-end; margin-top: 0.75rem; }
 .job-card-actions .btn { white-space: nowrap; min-width: 140px; }
 .btn-applied {
   background: var(--gray-100) !important;
