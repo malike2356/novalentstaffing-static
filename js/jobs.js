@@ -66,7 +66,9 @@
       industry: api.industry || '',
       posted: api.published_at || api.created_at || '',
       company: 'Novalent Staffing',
-      snippet: api.description || ''
+      snippet: api.description || '',
+      requirements: api.requirements || '',
+      responsibilities: api.responsibilities || ''
     };
   }
 
@@ -305,6 +307,7 @@
       var posted = formatPostedDate(job.posted);
       var isNew = (new Date() - new Date(job.posted)) < 3 * 24 * 60 * 60 * 1000;
       var indLabel = job.industry && INDUSTRY_LABELS[job.industry] ? INDUSTRY_LABELS[job.industry] : '';
+      var hasDetails = (job.requirements && job.requirements.trim()) || (job.responsibilities && job.responsibilities.trim());
       var badges = [];
       if (isNew) badges.push('<span class="job-badge job-badge-new">New</span>');
       if (indLabel) badges.push('<span class="job-badge job-badge-industry">' + escapeHtml(indLabel) + '</span>');
@@ -313,6 +316,20 @@
       var actionHtml = applied
         ? '<span class="btn btn-applied"><i class="fas fa-check"></i> Applied</span>'
         : '<a href="apply?id=' + job.id + '" class="btn btn-primary">Easy Apply</a>';
+
+      var detailsHtml = '';
+      if (hasDetails) {
+        detailsHtml =
+          '<button type="button" class="btn btn-link btn-sm job-more-btn" aria-expanded="false">View details</button>' +
+          '<div class="job-details" style="display:none;">' +
+            (job.requirements && job.requirements.trim()
+              ? '<h4>Requirements</h4><p>' + escapeHtml(job.requirements) + '</p>'
+              : '') +
+            (job.responsibilities && job.responsibilities.trim()
+              ? '<h4>Responsibilities</h4><p>' + escapeHtml(job.responsibilities) + '</p>'
+              : '') +
+          '</div>';
+      }
 
       return '<article class="job-card' + (opts.grid ? ' job-card-grid' : '') + '" data-id="' + job.id + '">' +
         '<div class="job-card-main">' +
@@ -330,6 +347,7 @@
         '</div>' +
         (job.snippet ? '<p class="job-snippet">' + escapeHtml(job.snippet) + '</p>' : '') +
         '<p class="job-hours">' + escapeHtml(job.hours || '') + '</p>' +
+        detailsHtml +
         '</div>' +
         '<div class="job-card-actions">' + actionHtml + '</div>' +
         '</article>';
@@ -384,6 +402,20 @@
           icon.classList.toggle('far', !nowSaved);
           icon.classList.toggle('fas', nowSaved);
           updateSavedJobsBadge();
+        });
+      });
+
+      container.querySelectorAll('.job-more-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          var card = btn.closest('.job-card');
+          if (!card) return;
+          var details = card.querySelector('.job-details');
+          if (!details) return;
+          var isOpen = details.style.display === 'block';
+          details.style.display = isOpen ? 'none' : 'block';
+          btn.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+          btn.textContent = isOpen ? 'View details' : 'Hide details';
         });
       });
 
