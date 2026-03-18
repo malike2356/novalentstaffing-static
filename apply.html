@@ -177,11 +177,25 @@
         var jobTitleEl = document.getElementById('jobTitleDisplay');
         var jobIdInput = document.getElementById('jobId');
 
-        if (job && jobTitleEl && jobIdInput) {
-          jobTitleEl.textContent = job.title + ' – ' + job.location;
-          jobIdInput.value = String(jobId);
+        function applyJobDetails(job) {
+          if (jobTitleEl) jobTitleEl.textContent = job.title + (job.location ? ' – ' + job.location : '');
+          if (jobIdInput) jobIdInput.value = String(jobId);
           document.title = 'Apply: ' + job.title + ' | Novalent Staffing';
-        } else if (jobId && !job) {
+        }
+
+        if (job) {
+          applyJobDetails(job);
+        } else if (jobId && window.NovalentMisApi && window.NovalentMisApi.isConfigured()) {
+          window.NovalentMisApi.getJob(jobId).then(function (apiJob) {
+            if (apiJob && jobTitleEl) {
+              var loc = (apiJob.location && apiJob.location.address) ? apiJob.location.address : (apiJob.location_address || '');
+              applyJobDetails({ title: apiJob.title, location: loc });
+            }
+          }).catch(function () {
+            if (jobTitleEl) jobTitleEl.textContent = 'Job not found – please choose a role from our jobs page.';
+            if (jobIdInput) jobIdInput.value = '';
+          });
+        } else if (jobId) {
           if (jobTitleEl) jobTitleEl.textContent = 'Job not found – please choose a role from our jobs page.';
           if (jobIdInput) jobIdInput.value = '';
         }
