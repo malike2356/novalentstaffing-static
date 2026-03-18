@@ -660,8 +660,8 @@ a:hover { color: var(--gold-dark); }
   font-size: 0.875rem;
   color: var(--gray-600);
 }
-.job-meta span { display: flex; align-items: center; gap: 0.35rem; }
-.job-meta i { color: var(--teal-600); width: 0.9em; }
+.job-meta span { display: flex; align-items: center; gap: 0.35rem; font-size: inherit; line-height: 1.35; }
+.job-meta i { color: var(--teal-600); width: 0.9em; font-size: inherit; line-height: 1.35; }
 .job-rate { font-weight: 600; color: var(--teal-700); }
 .job-posted { color: var(--gray-500); font-size: inherit; }
 /* When job-hours is used inside job-meta (span), keep font consistent */
