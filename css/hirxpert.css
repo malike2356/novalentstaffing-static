@@ -642,6 +642,21 @@ a:hover { color: var(--gold-dark); }
   .jobs-container.jobs-container-gridpanel .job-details-panel-inner {
     max-height: calc(100vh - 140px);
     overflow-y: auto;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin; /* Firefox */
+  }
+  /* WebKit scrollbar styling (Chrome/Edge/Safari) */
+  .jobs-container.jobs-container-gridpanel .job-details-panel-inner::-webkit-scrollbar { width: 10px; }
+  .jobs-container.jobs-container-gridpanel .job-details-panel-inner::-webkit-scrollbar-track { background: transparent; }
+  .jobs-container.jobs-container-gridpanel .job-details-panel-inner::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.35);
+    border-radius: 8px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  .jobs-container.jobs-container-gridpanel .job-details-panel-inner:hover::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.55);
+    background-clip: content-box;
   }
 
   /* Remove the "giant gap": in split mode, keep grid cards full-width (single column) */
