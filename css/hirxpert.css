@@ -617,8 +617,8 @@ a:hover { color: var(--gold-dark); }
     gap: 1.25rem;
     align-items: start;
   }
-  .jobs-container.jobs-container-gridpanel .jobs-list { grid-column: 1; }
-  .jobs-container.jobs-container-gridpanel .job-details-panel { display: block; grid-column: 2; position: sticky; top: 96px; }
+  .jobs-container.jobs-container-gridpanel .jobs-list { grid-column: 1; grid-row: 1; }
+  .jobs-container.jobs-container-gridpanel .job-details-panel { display: block; grid-column: 2; grid-row: 1; position: sticky; top: 96px; }
   .job-details-panel-inner {
     background: var(--white);
     border: 1px solid var(--gray-200);
@@ -632,7 +632,7 @@ a:hover { color: var(--gold-dark); }
   .job-details-panel .job-details-panel-actions .btn { min-width: 0; width: auto; }
   .job-details-panel .job-details-panel-body h4 { font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray-600); margin: 1rem 0 0.35rem; }
   .job-details-panel .job-details-panel-body p { margin: 0 0 0.75rem; line-height: 1.6; }
-  .jobs-container.jobs-container-gridpanel .jobs-load-more { grid-column: 1 / span 1; }
+  .jobs-container.jobs-container-gridpanel .jobs-load-more { grid-column: 1; grid-row: 2; }
 }
 .job-card {
   display: grid;
