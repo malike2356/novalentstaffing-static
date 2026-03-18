@@ -613,7 +613,8 @@ a:hover { color: var(--gold-dark); }
 @media (min-width: 900px) {
   .jobs-container.jobs-container-gridpanel {
     display: grid;
-    grid-template-columns: minmax(320px, 1fr) minmax(340px, 420px);
+    /* Left (cards) smaller, right (details) larger */
+    grid-template-columns: minmax(300px, 360px) minmax(420px, 1fr);
     gap: 1.25rem;
     align-items: start;
   }
@@ -637,6 +638,12 @@ a:hover { color: var(--gold-dark); }
   /* Indeed-style: scroll the left list only, keep details panel fixed */
   .jobs-container.jobs-container-gridpanel { max-height: calc(100vh - 140px); overflow: hidden; }
   .jobs-container.jobs-container-gridpanel .jobs-list { overflow-y: auto; padding-right: 0.25rem; }
+
+  /* Right panel: inner scroll if content is long, but panel stays in view */
+  .jobs-container.jobs-container-gridpanel .job-details-panel-inner {
+    max-height: calc(100vh - 140px);
+    overflow-y: auto;
+  }
 
   /* Remove the "giant gap": in split mode, keep grid cards full-width (single column) */
   .jobs-container.jobs-container-gridpanel .jobs-list.jobs-view-grid {
