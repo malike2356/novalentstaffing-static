@@ -56,7 +56,7 @@
     var rateNum = api.rate_per_hour != null ? parseFloat(api.rate_per_hour) : null;
     var rateStr = rateNum != null ? '£' + (rateNum % 1 === 0 ? rateNum : rateNum.toFixed(2)) + '/hr' : (api.salary_range || '');
     var fullDescription = api.description || '';
-    var snippet = truncateText(fullDescription, 100);
+    var snippet = truncateWords(fullDescription, 20);
     var hoursRaw = (api.hours_per_week != null ? String(api.hours_per_week) : '').trim();
     var hours = '';
     if (hoursRaw) {
@@ -553,11 +553,12 @@
     return d.innerHTML;
   }
 
-  function truncateText(text, maxChars) {
+  function truncateWords(text, maxWords) {
     var t = (text || '').replace(/\s+/g, ' ').trim();
     if (!t) return '';
-    if (t.length <= maxChars) return t;
-    return t.slice(0, Math.max(0, maxChars - 1)).trimEnd() + '…';
+    var words = t.split(' ').filter(Boolean);
+    if (words.length <= maxWords) return t;
+    return words.slice(0, maxWords).join(' ') + '…';
   }
 
   if (document.readyState === 'loading') {

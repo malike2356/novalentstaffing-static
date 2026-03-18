@@ -614,6 +614,7 @@ a:hover { color: var(--gold-dark); }
   border-radius: var(--radius);
   transition: all 0.2s;
 }
+.jobs-view-list .job-card { grid-template-columns: 1fr; }
 .job-card:hover { border-color: var(--teal-500); box-shadow: var(--shadow); }
 .job-card-main { min-width: 0; }
 .job-card-header {
